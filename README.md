@@ -1,5 +1,7 @@
 # SIDEMADE - Simple Dense Matrix Decomposition
 
+[![Check and Test CPP Package](https://github.com/neumantm/sse-testing-boost-exercise/actions/workflows/cpp.yml/badge.svg)](https://github.com/neumantm/sse-testing-boost-exercise/actions/workflows/cpp.yml)
+
 A simple demo code to read dense matrices from files and solve linear systems with them.
 
 ## Folder Structure

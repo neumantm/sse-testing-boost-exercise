@@ -1,0 +1,69 @@
+name: Check and Test CPP Package
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  style_check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install clang-format
+      run: |
+        sudo apt update
+        sudo apt install clang
+    - name: Run linter
+      run: |
+        clang-format --dry-run -Werror src/*.hpp src/*.cpp tests/*.cpp
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install cmake gcc libeigen3-dev libyaml-cpp-dev libboost-all-dev
+    - name: Create build folder
+      run: |
+        mkdir build
+    - name: Configure
+      working-directory: ./build
+      run: |
+        cmake ..
+    - name: Build
+      working-directory: ./build
+      run: |
+        make
+    - name: Tar build artifacts
+      run: |
+        tar -cvf build.tar build
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: build
+        path: build.tar
+        retention-days: 1
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install cmake gcc libeigen3-dev libyaml-cpp-dev libboost-all-dev
+    - uses: actions/download-artifact@v3
+      with:
+        name: build
+    - name: Untar build artifacts
+      run: |
+        tar -xvf build.tar build
+    - name: Run tests
+      working-directory: ./build
+      run: |
+        ctest --output-on-failure
